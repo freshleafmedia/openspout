@@ -28,7 +28,6 @@ use OpenSpout\Writer\XLSX\Options\PageSetup;
 use OpenSpout\Writer\XLSX\Options\PaperSize;
 use OpenSpout\Writer\XLSX\Options\SheetProtection;
 use OpenSpout\Writer\XLSX\Options\WorkbookProtection;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionHelper;
 
@@ -126,36 +125,59 @@ final class WriterTest extends TestCase
         $this->expectNotToPerformAssertions();
     }
 
-    /**
-     * @return array{0: ?string, 1: string}[]
-     */
-    public static function provideSetCreatorCases(): iterable
+    public function testDefaultProperties(): void
     {
-        return [
-            ['Test creator', 'Test creator'],
-            [null, 'OpenSpout'],
-        ];
-    }
-
-    #[DataProvider('provideSetCreatorCases')]
-    public function testSetCreator(?string $expected, string $actual): void
-    {
-        $fileName = 'test_set_creator.xlsx';
+        $fileName = 'test_default_properties.xlsx';
         $resourcePath = (new TestUsingResource())->getGeneratedResourcePath($fileName);
 
         $options = new Options();
         $options->setTempFolder((new TestUsingResource())->getTempFolderPath());
         $writer = new Writer($options);
-        if (\is_string($expected)) {
-            $writer->setCreator($expected);
-        }
         $writer->openToFile($resourcePath);
         $writer->close();
 
-        $pathToWorkbookFile = $resourcePath.'#docProps/app.xml';
+        $pathToWorkbookFile = $resourcePath.'#docProps/core.xml';
         $xmlContents = file_get_contents('zip://'.$pathToWorkbookFile);
         self::assertNotFalse($xmlContents);
-        self::assertStringContainsString("<Application>{$actual}</Application>", $xmlContents);
+        self::assertStringContainsString('<dc:title>Untitled Spreadsheet</dc:title>', $xmlContents);
+        self::assertStringContainsString('<dc:creator>OpenSpout</dc:creator>', $xmlContents);
+        self::assertStringContainsString('<cp:lastModifiedBy>OpenSpout</cp:lastModifiedBy>', $xmlContents);
+    }
+
+    public function testSetProperties(): void
+    {
+        $fileName = 'test_set_properties.xlsx';
+        $resourcePath = (new TestUsingResource())->getGeneratedResourcePath($fileName);
+
+        $properties = new Properties(
+            'Title',
+            'Subject',
+            'Creator',
+            'Last Modified By',
+            'key,words',
+            'Description',
+            'Category',
+            'English',
+        );
+
+        $options = new Options();
+        $options->setTempFolder((new TestUsingResource())->getTempFolderPath());
+        $options->setProperties($properties);
+        $writer = new Writer($options);
+        $writer->openToFile($resourcePath);
+        $writer->close();
+
+        $pathToWorkbookFile = $resourcePath.'#docProps/core.xml';
+        $xmlContents = file_get_contents('zip://'.$pathToWorkbookFile);
+        self::assertNotFalse($xmlContents);
+        self::assertStringContainsString('<dc:title>Title</dc:title>', $xmlContents);
+        self::assertStringContainsString('<dc:subject>Subject</dc:subject>', $xmlContents);
+        self::assertStringContainsString('<dc:creator>Creator</dc:creator>', $xmlContents);
+        self::assertStringContainsString('<cp:lastModifiedBy>Last Modified By</cp:lastModifiedBy>', $xmlContents);
+        self::assertStringContainsString('<cp:keywords>key,words</cp:keywords>', $xmlContents);
+        self::assertStringContainsString('<dc:description>Description</dc:description>', $xmlContents);
+        self::assertStringContainsString('<cp:category>Category</cp:category>', $xmlContents);
+        self::assertStringContainsString('<dc:language>English</dc:language>', $xmlContents);
     }
 
     public function testAddRowShouldWriteGivenDataToSheetUsingInlineStrings(): void

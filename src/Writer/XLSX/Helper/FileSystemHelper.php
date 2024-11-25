@@ -16,6 +16,7 @@ use OpenSpout\Writer\Common\Helper\ZipHelper;
 use OpenSpout\Writer\XLSX\Manager\Style\StyleManager;
 use OpenSpout\Writer\XLSX\MergeCell;
 use OpenSpout\Writer\XLSX\Options;
+use OpenSpout\Writer\XLSX\Properties;
 
 /**
  * @internal
@@ -47,8 +48,8 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     /** @var ZipHelper Helper to perform tasks with Zip archive */
     private readonly ZipHelper $zipHelper;
 
-    /** @var string document creator */
-    private readonly string $creator;
+    /** @var Properties document properties */
+    private readonly Properties $properties;
 
     /** @var XLSX Used to escape XML data */
     private readonly XLSX $escaper;
@@ -75,18 +76,18 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     private string $sheetsContentTempFolder;
 
     /**
-     * @param string    $baseFolderPath The path of the base folder where all the I/O can occur
-     * @param ZipHelper $zipHelper      Helper to perform tasks with Zip archive
-     * @param XLSX      $escaper        Used to escape XML data
-     * @param string    $creator        document creator
+     * @param string     $baseFolderPath The path of the base folder where all the I/O can occur
+     * @param ZipHelper  $zipHelper      Helper to perform tasks with Zip archive
+     * @param XLSX       $escaper        Used to escape XML data
+     * @param Properties $properties     document properies
      */
-    public function __construct(string $baseFolderPath, ZipHelper $zipHelper, XLSX $escaper, string $creator)
+    public function __construct(string $baseFolderPath, ZipHelper $zipHelper, XLSX $escaper, Properties $properties)
     {
         $this->baseFileSystemHelper = new CommonFileSystemHelper($baseFolderPath);
         $this->baseFolderRealPath = $this->baseFileSystemHelper->getBaseFolderRealPath();
         $this->zipHelper = $zipHelper;
         $this->escaper = $escaper;
-        $this->creator = $creator;
+        $this->properties = $properties;
     }
 
     public function createFolder(string $parentFolderPath, string $folderName): string
@@ -638,10 +639,10 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
      */
     private function createAppXmlFile(): self
     {
-        $appXmlFileContents = <<<EOD
+        $appXmlFileContents = <<<'EOD'
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties">
-                <Application>{$this->creator}</Application>
+                <Application>Microsoft Excel</Application>
                 <TotalTime>0</TotalTime>
             </Properties>
             EOD;
@@ -662,6 +663,14 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
         $coreXmlFileContents = <<<EOD
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             <cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <dc:title>{$this->properties->title}</dc:title>
+                <dc:subject>{$this->properties->subject}</dc:subject>
+                <dc:creator>{$this->properties->creator}</dc:creator>
+                <cp:lastModifiedBy>{$this->properties->lastModifiedBy}</cp:lastModifiedBy>
+                <cp:keywords>{$this->properties->keywords}</cp:keywords>
+                <dc:description>{$this->properties->description}</dc:description>
+                <cp:category>{$this->properties->category}</cp:category>
+                <dc:language>{$this->properties->language}</dc:language>
                 <dcterms:created xsi:type="dcterms:W3CDTF">{$createdDate}</dcterms:created>
                 <dcterms:modified xsi:type="dcterms:W3CDTF">{$createdDate}</dcterms:modified>
                 <cp:revision>0</cp:revision>
