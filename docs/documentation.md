@@ -88,6 +88,9 @@ $properties = new Properties(
     description: null,
     category: null,
     language: null,
+    customProperties: [
+        'test' => 'Test'
+    ]
 );
 
 $options = new Options();

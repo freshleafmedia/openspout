@@ -142,6 +142,8 @@ final class WriterTest extends TestCase
         self::assertStringContainsString('<dc:title>Untitled Spreadsheet</dc:title>', $xmlContents);
         self::assertStringContainsString('<dc:creator>OpenSpout</dc:creator>', $xmlContents);
         self::assertStringContainsString('<cp:lastModifiedBy>OpenSpout</cp:lastModifiedBy>', $xmlContents);
+
+        self::assertFileNotExists($resourcePath.'#docProps/custom.xml');
     }
 
     public function testSetProperties(): void
@@ -178,6 +180,30 @@ final class WriterTest extends TestCase
         self::assertStringContainsString('<dc:description>Description</dc:description>', $xmlContents);
         self::assertStringContainsString('<cp:category>Category</cp:category>', $xmlContents);
         self::assertStringContainsString('<dc:language>English</dc:language>', $xmlContents);
+    }
+
+    public function testSetCustomProperties(): void
+    {
+        $fileName = 'test_set_custom_properties.xlsx';
+        $resourcePath = (new TestUsingResource())->getGeneratedResourcePath($fileName);
+
+        $properties = new Properties(
+            customProperties: [
+                'test' => 'Test',
+            ]
+        );
+
+        $options = new Options();
+        $options->setTempFolder((new TestUsingResource())->getTempFolderPath());
+        $options->setProperties($properties);
+        $writer = new Writer($options);
+        $writer->openToFile($resourcePath);
+        $writer->close();
+
+        $pathToWorkbookFile = $resourcePath.'#docProps/custom.xml';
+        $xmlContents = file_get_contents('zip://'.$pathToWorkbookFile);
+        self::assertNotFalse($xmlContents);
+        self::assertStringContainsString('<property fmtid="{D5CDD505-2E9C-101B-9397-08002B2CF9AE}" pid="2" name="test"><vt:lpwstr>Test</vt:lpwstr></property>', $xmlContents);
     }
 
     public function testAddRowShouldWriteGivenDataToSheetUsingInlineStrings(): void

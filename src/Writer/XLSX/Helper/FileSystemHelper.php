@@ -32,6 +32,7 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     public const RELS_FILE_NAME = '.rels';
     public const APP_XML_FILE_NAME = 'app.xml';
     public const CORE_XML_FILE_NAME = 'core.xml';
+    public const CUSTOM_XML_FILE_NAME = 'custom.xml';
     public const CONTENT_TYPES_XML_FILE_NAME = '[Content_Types].xml';
     public const WORKBOOK_XML_FILE_NAME = 'workbook.xml';
     public const WORKBOOK_RELS_XML_FILE_NAME = 'workbook.xml.rels';
@@ -629,6 +630,10 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
         $this->createAppXmlFile();
         $this->createCoreXmlFile();
 
+        if ([] !== $this->properties->customProperties) {
+            $this->createCustomXmlFile();
+        }
+
         return $this;
     }
 
@@ -678,6 +683,37 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
             EOD;
 
         $this->createFileWithContents($this->docPropsFolder, self::CORE_XML_FILE_NAME, $coreXmlFileContents);
+
+        return $this;
+    }
+
+    /**
+     * Creates the "custom.xml" file under the "docProps" folder.
+     *
+     * @throws IOException If unable to create the file
+     */
+    private function createCustomXmlFile(): self
+    {
+        /** The pid must increment for each property, starting with 2 */
+        $pid = 2;
+        $propertiesXmlContents = '';
+
+        foreach ($this->properties->customProperties as $name => $value) {
+            $propertiesXmlContents .= <<<EOD
+                <property fmtid="{D5CDD505-2E9C-101B-9397-08002B2CF9AE}" pid="{$pid}" name="{$name}"><vt:lpwstr>{$value}</vt:lpwstr></property>
+                EOD;
+
+            ++$pid;
+        }
+
+        $customXmlFileContents = <<<EOD
+            <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties">
+                {$propertiesXmlContents}
+            </Properties>
+            EOD;
+
+        $this->createFileWithContents($this->docPropsFolder, self::CUSTOM_XML_FILE_NAME, $customXmlFileContents);
 
         return $this;
     }

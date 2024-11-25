@@ -18,5 +18,7 @@ final readonly class Properties
         public ?string $description = null,
         public ?string $category = null,
         public ?string $language = null,
+        /** @var array<string, string> $customProperties */
+        public array $customProperties = [],
     ) {}
 }
