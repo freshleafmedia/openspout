@@ -708,7 +708,7 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
 
         $customXmlFileContents = <<<EOD
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-            <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties">
+            <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
                 {$propertiesXmlContents}
             </Properties>
             EOD;
