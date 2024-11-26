@@ -170,10 +170,19 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
         }
 
         $contentTypesXmlFileContents .= <<<'EOD'
-                <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" PartName="/xl/styles.xml"/>
-                <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml" PartName="/xl/sharedStrings.xml"/>
-                <Override ContentType="application/vnd.openxmlformats-package.core-properties+xml" PartName="/docProps/core.xml"/>
-                <Override ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml" PartName="/docProps/app.xml"/>
+            <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" PartName="/xl/styles.xml"/>
+            <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml" PartName="/xl/sharedStrings.xml"/>
+            <Override ContentType="application/vnd.openxmlformats-package.core-properties+xml" PartName="/docProps/core.xml"/>
+            <Override ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml" PartName="/docProps/app.xml"/>
+            EOD;
+
+        if ([] !== $this->properties->customProperties) {
+            $contentTypesXmlFileContents .= <<<'EOD'
+                <Override ContentType="application/vnd.openxmlformats-officedocument.custom-properties+xml" PartName="/docProps/custom.xml" />
+                EOD;
+        }
+
+        $contentTypesXmlFileContents .= <<<'EOD'
             </Types>
             EOD;
 
@@ -604,13 +613,21 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
      */
     private function createRelsFile(): self
     {
-        $relsFileContents = <<<'EOD'
+        $relationshipsXmlContents = <<<'EOD'
+            <Relationship Id="rIdWorkbook" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+            <Relationship Id="rIdCore" Type="http://schemas.openxmlformats.org/officedocument/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
+            <Relationship Id="rIdApp" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
+            EOD;
+
+        if ([] !== $this->properties->customProperties) {
+            $relationshipsXmlContents .= <<<'EOD'
+                <Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties" Target="docProps/custom.xml"/>
+                EOD;
+        }
+
+        $relsFileContents = <<<EOD
             <?xml version="1.0" encoding="UTF-8"?>
-            <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-                <Relationship Id="rIdWorkbook" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
-                <Relationship Id="rIdCore" Type="http://schemas.openxmlformats.org/officedocument/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
-                <Relationship Id="rIdApp" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
-            </Relationships>
+            <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">{$relationshipsXmlContents}</Relationships>
             EOD;
 
         $this->createFileWithContents($this->relsFolder, self::RELS_FILE_NAME, $relsFileContents);
@@ -708,9 +725,7 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
 
         $customXmlFileContents = <<<EOD
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-            <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
-                {$propertiesXmlContents}
-            </Properties>
+            <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">{$propertiesXmlContents}</Properties>
             EOD;
 
         $this->createFileWithContents($this->docPropsFolder, self::CUSTOM_XML_FILE_NAME, $customXmlFileContents);

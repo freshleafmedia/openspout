@@ -143,7 +143,15 @@ final class WriterTest extends TestCase
         self::assertStringContainsString('<dc:creator>OpenSpout</dc:creator>', $xmlContents);
         self::assertStringContainsString('<cp:lastModifiedBy>OpenSpout</cp:lastModifiedBy>', $xmlContents);
 
-        self::assertFileNotExists($resourcePath.'#docProps/custom.xml');
+        self::assertFileDoesNotExist($resourcePath.'#docProps/custom.xml');
+
+        $contentTypesXmlContents = file_get_contents('zip://'.$resourcePath.'#[Content_Types].xml');
+        self::assertNotFalse($contentTypesXmlContents);
+        self::assertStringNotContainsString('<Override ContentType="application/vnd.openxmlformats-officedocument.custom-properties+xml" PartName="/docProps/custom.xml" />', $contentTypesXmlContents);
+
+        $relsXmlContents = file_get_contents('zip://'.$resourcePath.'#_rels/.rels');
+        self::assertNotFalse($relsXmlContents);
+        self::assertStringNotContainsString('<Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties" Target="docProps/custom.xml"/>', $relsXmlContents);
     }
 
     public function testSetProperties(): void
@@ -204,6 +212,14 @@ final class WriterTest extends TestCase
         $xmlContents = file_get_contents('zip://'.$pathToWorkbookFile);
         self::assertNotFalse($xmlContents);
         self::assertStringContainsString('<property fmtid="{D5CDD505-2E9C-101B-9397-08002B2CF9AE}" pid="2" name="test"><vt:lpwstr>Test</vt:lpwstr></property>', $xmlContents);
+
+        $contentTypesXmlContents = file_get_contents('zip://'.$resourcePath.'#[Content_Types].xml');
+        self::assertNotFalse($contentTypesXmlContents);
+        self::assertStringContainsString('<Override ContentType="application/vnd.openxmlformats-officedocument.custom-properties+xml" PartName="/docProps/custom.xml" />', $contentTypesXmlContents);
+
+        $relsXmlContents = file_get_contents('zip://'.$resourcePath.'#_rels/.rels');
+        self::assertNotFalse($relsXmlContents);
+        self::assertStringContainsString('<Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties" Target="docProps/custom.xml"/>', $relsXmlContents);
     }
 
     public function testAddRowShouldWriteGivenDataToSheetUsingInlineStrings(): void
