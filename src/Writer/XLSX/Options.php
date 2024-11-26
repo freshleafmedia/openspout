@@ -120,7 +120,7 @@ final class Options extends AbstractOptions
         $this->workbookProtection = $workbookProtection;
     }
 
-    public function getProperties(): ?Properties
+    public function getProperties(): Properties
     {
         return $this->properties;
     }
