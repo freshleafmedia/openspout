@@ -12,6 +12,7 @@ final readonly class Properties
     public function __construct(
         public ?string $title = 'Untitled Spreadsheet',
         public ?string $subject = null,
+        public ?string $application = 'OpenSpout',
         public ?string $creator = 'OpenSpout',
         public ?string $lastModifiedBy = 'OpenSpout',
         public ?string $keywords = null,

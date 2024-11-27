@@ -661,10 +661,10 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
      */
     private function createAppXmlFile(): self
     {
-        $appXmlFileContents = <<<'EOD'
+        $appXmlFileContents = <<<EOD
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties">
-                <Application>Microsoft Excel</Application>
+                <Application>{$this->properties->application}</Application>
                 <TotalTime>0</TotalTime>
             </Properties>
             EOD;

@@ -136,12 +136,15 @@ final class WriterTest extends TestCase
         $writer->openToFile($resourcePath);
         $writer->close();
 
-        $pathToWorkbookFile = $resourcePath.'#docProps/core.xml';
-        $xmlContents = file_get_contents('zip://'.$pathToWorkbookFile);
-        self::assertNotFalse($xmlContents);
-        self::assertStringContainsString('<dc:title>Untitled Spreadsheet</dc:title>', $xmlContents);
-        self::assertStringContainsString('<dc:creator>OpenSpout</dc:creator>', $xmlContents);
-        self::assertStringContainsString('<cp:lastModifiedBy>OpenSpout</cp:lastModifiedBy>', $xmlContents);
+        $appXmlContents = file_get_contents('zip://'.$resourcePath.'#docProps/app.xml');
+        self::assertNotFalse($appXmlContents);
+        self::assertStringContainsString('<Application>OpenSpout</Application>', $appXmlContents);
+
+        $coreXmlContents = file_get_contents('zip://'.$resourcePath.'#docProps/core.xml');
+        self::assertNotFalse($coreXmlContents);
+        self::assertStringContainsString('<dc:title>Untitled Spreadsheet</dc:title>', $coreXmlContents);
+        self::assertStringContainsString('<dc:creator>OpenSpout</dc:creator>', $coreXmlContents);
+        self::assertStringContainsString('<cp:lastModifiedBy>OpenSpout</cp:lastModifiedBy>', $coreXmlContents);
 
         self::assertFileDoesNotExist($resourcePath.'#docProps/custom.xml');
 
@@ -162,6 +165,7 @@ final class WriterTest extends TestCase
         $properties = new Properties(
             'Title',
             'Subject',
+            'Application',
             'Creator',
             'Last Modified By',
             'key,words',
@@ -177,17 +181,20 @@ final class WriterTest extends TestCase
         $writer->openToFile($resourcePath);
         $writer->close();
 
-        $pathToWorkbookFile = $resourcePath.'#docProps/core.xml';
-        $xmlContents = file_get_contents('zip://'.$pathToWorkbookFile);
-        self::assertNotFalse($xmlContents);
-        self::assertStringContainsString('<dc:title>Title</dc:title>', $xmlContents);
-        self::assertStringContainsString('<dc:subject>Subject</dc:subject>', $xmlContents);
-        self::assertStringContainsString('<dc:creator>Creator</dc:creator>', $xmlContents);
-        self::assertStringContainsString('<cp:lastModifiedBy>Last Modified By</cp:lastModifiedBy>', $xmlContents);
-        self::assertStringContainsString('<cp:keywords>key,words</cp:keywords>', $xmlContents);
-        self::assertStringContainsString('<dc:description>Description</dc:description>', $xmlContents);
-        self::assertStringContainsString('<cp:category>Category</cp:category>', $xmlContents);
-        self::assertStringContainsString('<dc:language>English</dc:language>', $xmlContents);
+        $appXmlContents = file_get_contents('zip://'.$resourcePath.'#docProps/app.xml');
+        self::assertNotFalse($appXmlContents);
+        self::assertStringContainsString('<Application>Application</Application>', $appXmlContents);
+
+        $coreXmlContents = file_get_contents('zip://'.$resourcePath.'#docProps/core.xml');
+        self::assertNotFalse($coreXmlContents);
+        self::assertStringContainsString('<dc:title>Title</dc:title>', $coreXmlContents);
+        self::assertStringContainsString('<dc:subject>Subject</dc:subject>', $coreXmlContents);
+        self::assertStringContainsString('<dc:creator>Creator</dc:creator>', $coreXmlContents);
+        self::assertStringContainsString('<cp:lastModifiedBy>Last Modified By</cp:lastModifiedBy>', $coreXmlContents);
+        self::assertStringContainsString('<cp:keywords>key,words</cp:keywords>', $coreXmlContents);
+        self::assertStringContainsString('<dc:description>Description</dc:description>', $coreXmlContents);
+        self::assertStringContainsString('<cp:category>Category</cp:category>', $coreXmlContents);
+        self::assertStringContainsString('<dc:language>English</dc:language>', $coreXmlContents);
     }
 
     public function testSetCustomProperties(): void

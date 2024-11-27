@@ -82,6 +82,7 @@ use OpenSpout\Writer\XLSX\Writer;
 $properties = new Properties(
     title: 'Untitled Spreadsheet',
     subject: null,
+    application: 'OpenSpout',
     creator: 'OpenSpout',
     lastModifiedBy: 'OpenSpout',
     keywords: null,
