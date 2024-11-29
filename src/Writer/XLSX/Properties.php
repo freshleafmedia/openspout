@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace OpenSpout\Writer\XLSX;
 
-/**
- * @internal
- */
 final readonly class Properties
 {
     public function __construct(
